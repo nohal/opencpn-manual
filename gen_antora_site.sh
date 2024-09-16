@@ -21,6 +21,9 @@ media=$3
 
 module_path="modules/ROOT"
 
+script=$(realpath "$0")
+script_path=$(dirname "$script")
+
 if [ ! -d "${manual}" ]; then
 	echo "Directory ${manual} does not exist."
 	exit 1
@@ -140,6 +143,9 @@ title="$(grep "^=" "${target}/${module_path}/pages/${manual}.adoc" | head -n1 | 
 echo ".${title}" >> "${target}/${module_path}/nav.adoc"
 # Sort the navigation
 sort -o "${target}/${module_path}/nav.adoc" "${target}/${module_path}/nav.adoc"
+
+# Deploy the offline manual cover page
+cp "${script_path}/content/index.adoc" "${target}/${module_path}/pages/"
 
 # Generate the manual
 pushd "${target}"
