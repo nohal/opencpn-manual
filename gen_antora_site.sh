@@ -47,9 +47,11 @@ site:
   start_page: ${manual}.adoc
 
 content:
+  edit_url: ~
   sources:
   - url: .
     branches: [HEAD]
+    edit_url: ~
 
 ui:
   bundle:
@@ -65,6 +67,13 @@ asciidoc:
     copyright: 2024 OpenCPN Contributors
     license: CC BY-SA 4.0
     license-link: https://creativecommons.org/licenses/by-sa/4.0/
+    page-resource_1_title: OpenCPN.org
+    page-resource_1_url: https://www.opencpn.org/
+    page-resource_2_title: User Manual Online
+    page-resource_2_url: https://opencpn.org/wiki/dokuwiki/doku.php?id=opencpn:opencpn_user_manual
+    page-resource_3_title: Github Site
+    page-resource_3_url: https://github.com/opencpn/OpenCPN
+
 EOF
 
 # Iterate over the content tree
