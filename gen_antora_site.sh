@@ -115,7 +115,7 @@ for file in $(find ${manual} -name "*.txt") "${manual}.txt"; do
 	sed -i -E "s/(link:[a-z_\/\.-]*)#(.*)/\1#_\2/g" "${target}/${module_path}/pages/${target_file}"
 	# Pull in the required images
 	mkdir -p "${target}/${module_path}/images"
-	images="$(sed "s/image:/\nimage:/g" "${target}/${module_path}/pages/${target_file}" | grep "image:" | sed "s/.*image:\(.*\)\[.*\]\?/\1/g" | grep -v "indexmenu")"
+	images="$(sed "s/image:/\nimage:/g" "${target}/${module_path}/pages/${target_file}" | sed "s/link:/\nlink:/g" | grep "image:" | sed "s/.*image:\(.*\)\[.*\]\?/\1/g" | grep -v "indexmenu")"
 	for img in $images; do
 		echo "Processing image ${img}..."
 		if [ -f ${media}/${img} ]; then
