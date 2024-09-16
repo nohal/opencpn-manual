@@ -66,18 +66,8 @@ asciidoc:
     license-link: https://creativecommons.org/licenses/by-sa/4.0/
 EOF
 
-# Title page of the manual
-
-pandoc -f dokuwiki -t asciidoc "${manual}.txt" > "${target}/${module_path}/pages/${manual}.adoc"
-title="$(grep "^=" "${target}/${module_path}/pages/${manual}.adoc" | head -n1 | sed "s/==* *//g")"
-echo ".${title}" > "${target}/${module_path}/nav.adoc"
-
-sed -i '/image:.\?indexmenu/d' "${target}/${module_path}/pages/${manual}.adoc"
-
-
 # Iterate over the content tree
-
-for file in $(find ${manual} -name "*.txt"); do
+for file in $(find ${manual} -name "*.txt") "${manual}.txt"; do
 	echo "${file}"
 	# Skip files we do not care about
 	if [[ $file == *blank.txt ]]; then
@@ -98,17 +88,18 @@ for file in $(find ${manual} -name "*.txt"); do
 	# Remove the Dokuwiki page index "image"
 	sed -i '/image:.\?indexmenu/d' "${target}/${module_path}/pages/${target_file}"
 	# Add page to the table of contents
-	tree_depth=$(awk -F"${char}" '{print NF-1}' <<< "${file}")
-	title="$(grep "^=" "${target}/${module_path}/pages/${target_file}" | head -n1 | sed "s/==* *//g")"
-	up_path=""
-	for i in $(seq $tree_depth); do
-		echo -n "*" >> "${target}/${module_path}/nav.adoc"
-		if [ -z "${up_path=}" ]; then
-			up_path="."
-		else
-			up_path="${up_path}\\/.."
-		fi
-        done
+	if [ "$tree_depth" -gt "0" ]; then # Not for the cover page
+		title="$(grep "^=" "${target}/${module_path}/pages/${target_file}" | head -n1 | sed "s/==* *//g")"
+		up_path=""
+		for i in $(seq $tree_depth); do
+			echo -n "*" >> "${target}/${module_path}/nav.adoc"
+			if [ -z "${up_path=}" ]; then
+				up_path="."
+			else
+				up_path="${up_path}\\/.."
+			fi
+        	done
+	fi
 	echo " xref:${target_file}[${title}]" >> "${target}/${module_path}/nav.adoc"
 	# Fix links
 	# 1: Relative paths
@@ -140,8 +131,13 @@ for file in $(find ${manual} -name "*.txt"); do
 			echo "W: ${img} not found"
 		fi
 	done
+	# Handle images from the root of the mediafolder and remove the leading slashes from them
+	sed -i 's/image:\/\//image:/g' "${target}/${module_path}/pages/${target_file}"
 done
 
+# Title page of the manual, will then end up first due to sorting...
+title="$(grep "^=" "${target}/${module_path}/pages/${manual}.adoc" | head -n1 | sed "s/==* *//g")"
+echo ".${title}" >> "${target}/${module_path}/nav.adoc"
 # Sort the navigation
 sort -o "${target}/${module_path}/nav.adoc" "${target}/${module_path}/nav.adoc"
 
