@@ -5,7 +5,6 @@
 # TODO:
 #  - Sort the TOC in "correct" order, probably best achievable by numbering the chapters, but the wiki does it based on the "indexmenu" stuff, which is a total mess to use at this level...
 #  - Fix the links to "Advanced Manual" to point to either the online wiki or some local place
-#  - Fix the missing images
 #  - Handle more of the odities caused by errors in the wiki and imperfect conversion
 
 if [ $# -ne 3 ]; then

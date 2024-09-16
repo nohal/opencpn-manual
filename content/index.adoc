@@ -1,0 +1,3 @@
+= OpenCPN manual
+
+This is an offline version of the OpenCPN manual converted from the Dokuwiki available at https://opencpn.org
