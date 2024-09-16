@@ -3,6 +3,7 @@
 ## Prerequisities
 
 - Antora
+- pandoc
 - oxipng
 - jpegoptim
 - sed

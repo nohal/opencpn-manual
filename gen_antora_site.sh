@@ -71,7 +71,8 @@ EOF
 pandoc -f dokuwiki -t asciidoc "${manual}.txt" > "${target}/${module_path}/pages/${manual}.adoc"
 title="$(grep "^=" "${target}/${module_path}/pages/${manual}.adoc" | head -n1 | sed "s/==* *//g")"
 echo ".${title}" > "${target}/${module_path}/nav.adoc"
-sed -i '/image:indexmenu/d' "${target}/${module_path}/pages/${manual}.adoc"
+
+sed -i '/image:.\?indexmenu/d' "${target}/${module_path}/pages/${manual}.adoc"
 
 
 # Iterate over the content tree
@@ -94,8 +95,8 @@ for file in $(find ${manual} -name "*.txt"); do
 	mkdir -p "${target}/${module_path}/pages/${target_subdir}"
 	target_file="$(echo "${file}" | sed "s/\.txt/\.adoc/g")"
 	pandoc -f dokuwiki -t asciidoc "${file}" > "${target}/${module_path}/pages/${target_file}"
-	# Remove the Dokuwiki page index "image" 
-        sed -i '/image:indexmenu/d' "${target}/${module_path}/pages/${target_file}"
+	# Remove the Dokuwiki page index "image"
+	sed -i '/image:.\?indexmenu/d' "${target}/${module_path}/pages/${target_file}"
 	# Add page to the table of contents
 	tree_depth=$(awk -F"${char}" '{print NF-1}' <<< "${file}")
 	title="$(grep "^=" "${target}/${module_path}/pages/${target_file}" | head -n1 | sed "s/==* *//g")"
@@ -122,9 +123,6 @@ for file in $(find ${manual} -name "*.txt"); do
 	for img in $images; do
 		echo "Processing image ${img}..."
 		if [ -f ${media}/${img} ]; then
-			#TODO:
-			# Process the path and figure ot what it should be
-			# sed the AsciiDoc and fix the path
 			image_path="$(echo "${img}" | rev | cut -d'/' -f2- | rev)"
 			image_name="$(echo "${img}" | rev | cut -d'/' -f1 | rev)"
 			target_path="${target}/${module_path}/images/${image_path}"
