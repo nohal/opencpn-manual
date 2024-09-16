@@ -6,7 +6,6 @@
 #  - Sort the TOC in "correct" order, probably best achievable by numbering the chapters, but the wiki does it based on the "indexmenu" stuff, which is a total mess to use at this level...
 #  - Fix the links to "Advanced Manual" to point to either the online wiki or some local place
 #  - Fix the missing images
-#  - Do something about the main index.html
 #  - Handle more of the odities caused by errors in the wiki and imperfect conversion
 
 if [ $# -ne 3 ]; then
@@ -106,14 +105,17 @@ for file in $(find ${manual} -name "*.txt") "${manual}.txt"; do
 	echo " xref:${target_file}[${title}]" >> "${target}/${module_path}/nav.adoc"
 	# Fix links
 	# 1: Relative paths
-	sed -i "s/link:.*${manual}\//link:${up_path}\//g" "${target}/${module_path}/pages/${target_file}"
+	sed -i "s/link:[a-zA-Z0-9\/\._\-]*${manual}\//link:${up_path}\//g" "${target}/${module_path}/pages/${target_file}"
 	# 2: Dokuwiki internal links are converted to `link` in AsciiDoc, which means Antora will not make them point to `*.html` and we need to do it ourselves
-	sed -i -E "s/(link:[a-z_\/\.-]*)(#.*)?/\1.html\2/g" "${target}/${module_path}/pages/${target_file}"
+	sed -i -E "s/(link:[a-zA-Z0-9_\/\.-]*)(#.*)?/\1.html\2/g" "${target}/${module_path}/pages/${target_file}"
+	# 2.1: Fix what we have broken (images in links)
+#	sed -i "s/jpg.html/jpg/g" "${target}/${module_path}/pages/${target_file}"
+#	sed -i "s/png.html/png/g" "${target}/${module_path}/pages/${target_file}"
 	# 3: Antora generates anchors prepended with underscore, Dokuwiki does not, so the links do not work correctly. Try to fix it.
 	sed -i -E "s/(link:[a-z_\/\.-]*)#(.*)/\1#_\2/g" "${target}/${module_path}/pages/${target_file}"
 	# Pull in the required images
 	mkdir -p "${target}/${module_path}/images"
-	images="$(grep "image:" "${target}/${module_path}/pages/${target_file}" | sed "s/.*image:\(.*\)\[.*\]\?/\1/g" | grep -v "indexmenu")"
+	images="$(sed "s/image:/\nimage:/g" "${target}/${module_path}/pages/${target_file}" | grep "image:" | sed "s/.*image:\(.*\)\[.*\]\?/\1/g" | grep -v "indexmenu")"
 	for img in $images; do
 		echo "Processing image ${img}..."
 		if [ -f ${media}/${img} ]; then
