@@ -136,6 +136,8 @@ for file in $(find ${manual} -name "*.txt") "${manual}.txt"; do
 					oxipng "${target_path}/${image_name}" ;;
 				"image/jpeg")
 					jpegoptim "${target_path}/${image_name}" ;;
+				"application/pdf")
+					rm -f "${target_path}/${image_name}" ;;
 				*) echo "${mime_type} not optimized for minimal size" ;;
 			esac
 		else
