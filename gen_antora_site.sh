@@ -96,6 +96,7 @@ for file in $(find ${manual} -name "*.txt") "${manual}.txt"; do
 	target_file="$(echo "${file}" | sed "s/\.txt/\.adoc/g")"
 	pandoc -f dokuwiki -t asciidoc "${file}" > "${target}/${module_path}/pages/${target_file}"
 	# Remove the Dokuwiki page index "image"
+	indexmenu=$(grep indexmenu "${target}/${module_path}/pages/${target_file}")
 	sed -i '/image:.\?indexmenu/d' "${target}/${module_path}/pages/${target_file}"
 	# Add page to the table of contents
 	if [ "$tree_depth" -gt "0" ]; then # Not for the cover page
@@ -109,16 +110,13 @@ for file in $(find ${manual} -name "*.txt") "${manual}.txt"; do
 				up_path="${up_path}\\/.."
 			fi
         	done
+		echo " xref:${target_file}[${title}]" >> "${target}/${module_path}/nav.adoc"
 	fi
-	echo " xref:${target_file}[${title}]" >> "${target}/${module_path}/nav.adoc"
 	# Fix links
 	# 1: Relative paths
 	sed -i "s/link:[a-zA-Z0-9\/\._\-]*${manual}\//link:${up_path}\//g" "${target}/${module_path}/pages/${target_file}"
 	# 2: Dokuwiki internal links are converted to `link` in AsciiDoc, which means Antora will not make them point to `*.html` and we need to do it ourselves
 	sed -i -E "s/(link:[a-zA-Z0-9_\/\.-]*)(#.*)?/\1.html\2/g" "${target}/${module_path}/pages/${target_file}"
-	# 2.1: Fix what we have broken (images in links)
-#	sed -i "s/jpg.html/jpg/g" "${target}/${module_path}/pages/${target_file}"
-#	sed -i "s/png.html/png/g" "${target}/${module_path}/pages/${target_file}"
 	# 3: Antora generates anchors prepended with underscore, Dokuwiki does not, so the links do not work correctly. Try to fix it.
 	sed -i -E "s/(link:[a-z_\/\.-]*)#(.*)/\1#_\2/g" "${target}/${module_path}/pages/${target_file}"
 	# Pull in the required images
@@ -156,6 +154,11 @@ sort -o "${target}/${module_path}/nav.adoc" "${target}/${module_path}/nav.adoc"
 
 # Deploy the offline manual cover page
 cp "${script_path}/content/index.adoc" "${target}/${module_path}/pages/"
+
+echo "The navigation link tree ${target}/${module_path}/nav.adoc was sorted alphabetically,"
+echo "that is not what the outhors of the wiki intended, so now you can edit the file."
+echo "When ready, press Enter and the manual site will be generated."
+read
 
 # Generate the manual
 pushd "${target}"
